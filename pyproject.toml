@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "anndata>=0.12.3",
+    "gdown>=5.2.0",
     "ipykernel>=7.0.1",
     "litellm>=1.78.6",
     "notebook>=7.4.7",

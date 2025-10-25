@@ -3,7 +3,25 @@
 
 """
 多源数据下载器
-支持从 Hugging Face、GitHub、Google Drive 下载数据
+支持从 Hugging Face、GitHub、Google Drive、HTTP 下载数据
+
+功能说明:
+    1. HuggingFaceDownloader - 从 Hugging Face Hub 下载数据集
+    2. GitHubDownloader - 从 GitHub 克隆仓库
+    3. GoogleDriveDownloader - 使用 gdown 从 Google Drive 稳定下载（推荐）
+    4. HttpFileDownloader - 从任意 HTTP/HTTPS 链接下载文件
+
+安装依赖:
+    pip install huggingface_hub requests gdown
+
+使用方法:
+    1. 直接运行: python data_download.py
+    2. 作为模块导入使用各个下载器类
+
+注意事项:
+    - Google Drive 下载需要安装 gdown: pip install gdown
+    - 大文件下载可能需要较长时间
+    - 确保有足够的磁盘空间
 """
 
 import os
@@ -183,6 +201,95 @@ class GitHubDownloader:
         return self.datasets_dir / repo_name
 
 
+class GoogleDriveDownloader:
+    """
+    Google Drive 文件下载器
+    
+    功能：通过文件 ID 从 Google Drive 可靠地下载文件
+    使用 gdown 库提供稳定的下载能力
+    """
+    
+    def __init__(self, base_dir: str = None):
+        """
+        初始化下载器
+        
+        参数:
+            base_dir (str, optional): 数据存储基础目录
+        """
+        if base_dir is None:
+            self.base_dir = Path(__file__).parent.parent
+        else:
+            self.base_dir = Path(base_dir)
+        
+        self.datasets_dir = self.base_dir / "datasets"
+        self.datasets_dir.mkdir(parents=True, exist_ok=True)
+        
+        # 检查是否安装了 gdown
+        try:
+            import gdown
+            self.gdown = gdown
+        except ImportError:
+            logger.warning("⚠️  gdown 未安装，建议运行: pip install gdown")
+            self.gdown = None
+    
+    def download(self, file_id: str, output_name: str = None, force_download: bool = False) -> bool:
+        """
+        从 Google Drive 下载文件
+        
+        参数:
+            file_id (str): Google Drive 文件 ID（例如：1OC3VpPKSQ0VHd9ZeZhnxI8EA2wTdrBg5）
+            output_name (str): 输出文件名（可选，例如：stage2_train.jsonl）
+            force_download (bool): 是否强制重新下载
+        
+        返回:
+            bool: 下载成功返回 True
+        """
+        # 创建存储目录
+        local_dir = self.datasets_dir / f"gdrive_{file_id}"
+        local_dir.mkdir(exist_ok=True)
+        
+        # 检查是否已存在
+        if not force_download and self._check_exists(local_dir):
+            logger.info(f"✅ Google Drive 文件已存在: {local_dir}")
+            return True
+        
+        if not self.gdown:
+            logger.error("❌ gdown 未安装，无法下载 Google Drive 文件")
+            logger.info("   请运行: pip install gdown")
+            return False
+        
+        try:
+            logger.info(f"📥 开始下载 Google Drive 文件: {file_id}")
+            
+            # 构建下载 URL
+            url = f"https://drive.google.com/uc?id={file_id}"
+            
+            # 确定输出路径
+            if output_name:
+                output_path = str(local_dir / output_name)
+            else:
+                output_path = str(local_dir / "downloaded_file")
+            
+            # 使用 gdown 下载，支持大文件
+            self.gdown.download(url, output_path, quiet=False, fuzzy=True)
+            
+            logger.info(f"✅ 下载完成: {local_dir}")
+            return True
+            
+        except Exception as e:
+            logger.error(f"❌ 下载失败: {str(e)}")
+            logger.info("💡 提示: 请确保文件是公开的，或者需要手动下载")
+            return False
+    
+    def _check_exists(self, local_dir: Path) -> bool:
+        """检查文件是否已存在"""
+        return local_dir.exists() and any(local_dir.iterdir())
+    
+    def get_dataset_path(self, file_id: str) -> Path:
+        """获取文件本地路径"""
+        return self.datasets_dir / f"gdrive_{file_id}"
+
+
 class HttpFileDownloader:
     """
     HTTP 文件下载器
@@ -344,7 +451,7 @@ def main():
         ('PharMolix/UniProtQA', None), 
         ('EMCarrami/Pika-DS', None),
         ('InstaDeepAI/ChatNT_training_data', None),
-        ('dnagpt/llama-gene-train-data', ['dna/dna_seq.txt', 'protein/protein_seq.txt'])  # 示例：排除大文件
+        ('dnagpt/llama-gene-train-data', ['dna/dna_seq.txt', 'protein/protein_seq.txt'])  # 排除大文件
     ]
     
     # GitHub 仓库
@@ -352,13 +459,18 @@ def main():
         'https://github.com/hhnqqq/Biology-Instructions'
     ]
     
-    # HTTP 文件下载链接
+    # Google Drive 文件配置 (file_id, output_name)
+    gdrive_files = [
+        ('1OC3VpPKSQ0VHd9ZeZhnxI8EA2wTdrBg5', 'stage2_train.jsonl')  # Biology-Instructions stage2 训练数据
+    ]
+    
+    # HTTP 文件下载链接（用于其他非 Google Drive 的 HTTP 下载）
     http_files = [
-        'https://drive.usercontent.google.com/download?id=1OC3VpPKSQ0VHd9ZeZhnxI8EA2wTdrBg5&export=download&authuser=0&confirm=t&uuid=e785cd67-94d7-46b6-a1b4-14f643624b7d&at=AN8xHor66TqLKD-p6ddJcODmObWc%3A1756722563687'
+        # 'https://example.com/some_file.zip'
     ]
     
     total_success = 0
-    total_count = len(hf_datasets) + len(github_repos) + len(http_files)
+    total_count = len(hf_datasets) + len(github_repos) + len(gdrive_files) + len(http_files)
     
     # 下载 Hugging Face 数据集
     print("\n📥 下载 Hugging Face 数据集...")
@@ -385,16 +497,28 @@ def main():
         else:
             print(f"❌ 失败")
     
-    # 下载 HTTP 文件
-    print("\n📥 下载 HTTP 文件...")
-    http_downloader = HttpFileDownloader()
-    for i, download_url in enumerate(http_files, 1):
-        print(f"[{i}/{len(http_files)}] {download_url[:80]}...")
-        if http_downloader.download(download_url):
+    # 下载 Google Drive 文件
+    print("\n📥 下载 Google Drive 文件...")
+    gdrive_downloader = GoogleDriveDownloader()
+    for i, (file_id, output_name) in enumerate(gdrive_files, 1):
+        print(f"[{i}/{len(gdrive_files)}] Google Drive 文件 ID: {file_id}")
+        if gdrive_downloader.download(file_id, output_name):
             print(f"✅ 成功")
             total_success += 1
         else:
             print(f"❌ 失败")
+    
+    # 下载其他 HTTP 文件
+    if http_files:
+        print("\n📥 下载 HTTP 文件...")
+        http_downloader = HttpFileDownloader()
+        for i, download_url in enumerate(http_files, 1):
+            print(f"[{i}/{len(http_files)}] {download_url[:80]}...")
+            if http_downloader.download(download_url):
+                print(f"✅ 成功")
+                total_success += 1
+            else:
+                print(f"❌ 失败")
     
     print(f"\n🎉 完成！成功下载 {total_success}/{total_count} 个数据集")
     print(f"📁 存储位置: {hf_downloader.datasets_dir}")
