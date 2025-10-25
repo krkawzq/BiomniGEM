@@ -7,20 +7,20 @@ save_dir=${home}/data/text/sft
 mkdir -p "${save_dir}"
 
 echo "Making train data..."
-python ${home}/train/make_sft.py \
+python ${home}/train/make_data/make_sft.py \
     --data_path "${home}/data/all_train.json" \
     --save_path "${save_dir}/train.json" \
     --seed 42
 
 echo "Making val data..."
-python ${home}/train/make_sft.py \
+python ${home}/train/make_data/make_sft.py \
     --data_path "${home}/data/all_val.json" \
     --save_path "${save_dir}/val.json" \
     --only_format "fixed" \
     --seed 42
 
 echo "Making cell val data..."
-python ${home}/train/make_sft.py \
+python ${home}/train/make_data/make_sft.py \
     --data_path "${home}/data/cell_val.json" \
     --save_path "${save_dir}/cell_val.json" \
     --only_format "fixed" \

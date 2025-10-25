@@ -7,12 +7,12 @@ save_dir=${home}/data/text/grpo
 mkdir -p "${save_dir}"
 
 echo "Making traces data..."
-python ${home}/train/enhance_traces_data.py \
+python ${home}/train/make_data/enhance_traces_data.py \
     --data_path "${home}/data/all_train.json" \
     --save_path "${save_dir}/traces.json" \
     --seed 42
 
-python ${home}/train/make_sft.py \
+python ${home}/train/make_data/make_sft.py \
     --data_path "${save_dir}/traces.json" \
     --save_path "${save_dir}/train.json" \
     --only_format "flex" \
