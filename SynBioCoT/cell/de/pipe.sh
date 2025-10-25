@@ -24,7 +24,13 @@ save_dir=${home}/data/de/
 #     --model "gpt-5-chat-latest" \
 #     --max_concurrency 30
 
-python ${home}/SynBioCoT/make_traces.py \
-    --data_path "${save_dir}/cot.csv" \
-    --save_path "${save_dir}/traces.json" \
-    --task "differential expression"
+# python ${home}/SynBioCoT/make_traces.py \
+#     --data_path "${save_dir}/cot.csv" \
+#     --save_path "${save_dir}/traces.json" \
+#     --task "differential expression"
+
+python ${home}/SynBioCoT/split.py \
+    --data_path "${save_dir}/traces.json" \
+    --save_dir "${save_dir}" \
+    --split_ratio 0.8 \
+    --seed 42

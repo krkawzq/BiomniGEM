@@ -30,19 +30,19 @@ done
 #     --save_path "${save_dir}/qa.csv" \
 #     --template_path "${home}/SynBioCoT/cell/sc_ann/template.json"
 
-# python ${home}/SynBioCoT/make_task.py \
-#     --data_path "${save_dir}/qa.csv" \
-#     --save_path "${save_dir}/task.csv" \
-#     --task "sc_ann" \
-#     --samples 1000 \
-#     --seed 42
+python ${home}/SynBioCoT/cell/sc_ann/make_task.py \
+    --data_path "${save_dir}/qa.csv" \
+    --save_path "${save_dir}/task.csv" \
+    --task "sc_ann" \
+    --samples 2000 \
+    --seed 32
 
-# python ${home}/SynBioCoT/make_cot.py \
-#     --data_path "${save_dir}/task.csv" \
-#     --save_path "${save_dir}/cot.csv" \
-#     --model "gpt-5-chat-latest" \
-#     --samples 1000 \
-#     --max_concurrency 30
+python ${home}/SynBioCoT/make_cot.py \
+    --data_path "${save_dir}/task.csv" \
+    --save_path "${save_dir}/cot.csv" \
+    --model "gpt-5-chat-latest" \
+    --samples 2000 \
+    --max_concurrency 30
 
 python ${home}/SynBioCoT/make_traces.py \
     --data_path "${save_dir}/cot.csv" \
