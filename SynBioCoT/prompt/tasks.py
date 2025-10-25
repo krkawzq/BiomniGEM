@@ -367,6 +367,175 @@ chatnt_plant_promoter_strength_description = [
     "Your answer may be a classification (strong/weak) or a continuous value (relative transcriptional activity)."
 ]
 
+
+# ============================================================================
+# 9. Biology-Instructions Tasks (Merged from 47 original tasks)
+# ============================================================================
+
+# 9.1 DNA: Promoter Detection
+bio_promoter_detection_abstract = "You are tasked with identifying whether a DNA sequence contains promoter elements that regulate gene transcription."
+
+bio_promoter_detection_description = [
+    "You will be provided with a DNA sequence of varying length (70bp core promoter or 300bp region).",
+    "Your task is to determine if this sequence functions as a promoter region.",
+    "Promoter sequences contain regulatory elements such as TATA box, CAAT box, Initiator elements, and transcription factor binding sites.",
+    "During reasoning, consider: sequence motifs (TATA box, Inr, DPE), GC content, position of regulatory elements, and nucleotide composition bias.",
+    "Some sequences may be distinguished by the presence or absence of specific elements (TATA-containing vs TATA-less promoters).",
+    "Your answer should be: 'Yes' (is a promoter) or 'No' (is not a promoter), sometimes with additional classification of promoter type."
+]
+
+# 9.2 DNA: Epigenetic Marks
+bio_epigenetic_marks_abstract = "You are tasked with predicting histone modifications and epigenetic marks in a DNA region."
+
+bio_epigenetic_marks_description = [
+    "You will be provided with a DNA sequence from yeast or other organisms.",
+    "Your task is to predict the presence of specific histone modifications (e.g., H3K4me3, H3K36me3, H3K9ac, H4ac).",
+    "Different histone modifications are associated with different chromatin states and gene activity:",
+    "  - H3K4me3: active promoter mark, associated with transcription initiation",
+    "  - H3K36me3: gene body mark of actively transcribed genes",
+    "  - H3K9ac/H3K14ac: transcriptional activation marks",
+    "  - H3K79me3: associated with active transcription elongation",
+    "  - H4ac: open chromatin and active transcription",
+    "During reasoning, consider: genomic context (promoter/gene body/intergenic), sequence composition, DNA accessibility features, and co-occurrence of other epigenetic marks.",
+    "Your answer should indicate the presence or absence of the specific epigenetic modification."
+]
+
+# 9.3 DNA: Transcription Factor Binding
+bio_tf_binding_abstract = "You are tasked with identifying transcription factor binding sites (TFBS) in DNA sequences."
+
+bio_tf_binding_description = [
+    "You will be provided with a 100bp DNA sequence from human or mouse genomes.",
+    "Your task is to determine whether this region contains functional transcription factor binding sites.",
+    "TFBS are short DNA motifs (typically 6-20bp) recognized by transcription factors that regulate gene expression.",
+    "During reasoning, consider: presence of known binding motifs, sequence conservation, DNA accessibility, GC content, and surrounding genomic context.",
+    "Note that different cell types may have different binding profiles due to chromatin state differences.",
+    "Your answer should be: 'Yes' (contains TFBS) or 'No' (does not contain TFBS)."
+]
+
+# 9.4 DNA: Enhancer Activity
+bio_enhancer_activity_abstract = "You are tasked with predicting the regulatory activity of DNA enhancer sequences."
+
+bio_enhancer_activity_description = [
+    "You will be provided with a DNA sequence that may function as an enhancer.",
+    "Your task is to predict the enhancer's transcriptional activity level in different contexts.",
+    "Enhancers are distal regulatory elements that can enhance gene transcription regardless of distance or orientation relative to the promoter.",
+    "Enhancers can be classified as:",
+    "  - Housekeeping (HK): constitutively active enhancers that maintain basal gene expression",
+    "  - Developmental (Dev): tissue-specific or stage-specific enhancers that regulate developmental programs",
+    "During reasoning, consider: transcription factor binding site clusters, sequence conservation across species, CpG content, and regulatory motif composition.",
+    "Your answer should provide enrichment scores for HK and Dev enhancer activity (higher scores indicate stronger activity)."
+]
+
+# 9.5 DNA: Regulatory Interaction
+bio_regulatory_interaction_abstract = "You are tasked with predicting functional interactions between promoter and enhancer DNA sequences."
+
+bio_regulatory_interaction_description = [
+    "You will be provided with two DNA sequences: one promoter region and one enhancer region.",
+    "Your task is to determine whether these two regulatory elements interact functionally in specific cell types.",
+    "Promoter-enhancer interactions are mediated by:",
+    "  - Shared transcription factor binding profiles (co-binding of TFs)",
+    "  - 3D chromatin looping that brings distant elements into physical proximity",
+    "  - Coordinated epigenetic signatures (similar histone modifications)",
+    "  - Cell type-specific regulatory circuits",
+    "During reasoning, consider: cell type context (GM12878, K562, HUVEC, HeLa-S3, IMR90, NHEK), sequence complementarity in TF binding motifs, and regulatory logic.",
+    "Your answer should be: 'Yes' (functional interaction exists) or 'No' (no interaction)."
+]
+
+# 9.6 RNA: Isoform
+bio_rna_isoform_abstract = "You are tasked with predicting alternative polyadenylation and transcript isoform usage patterns."
+
+bio_rna_isoform_description = [
+    "You will be provided with an RNA sequence containing polyadenylation signals.",
+    "Your task is to predict the percentage of transcripts that use the proximal (closer to the stop codon) polyadenylation site.",
+    "Alternative polyadenylation (APA) produces mRNA isoforms with different 3'UTR lengths, affecting mRNA stability, localization, and translation.",
+    "During reasoning, consider: polyadenylation signals (AAUAAA and variants like AUUAAA), upstream and downstream sequence elements (U-rich and GU-rich regions), cleavage site positioning, and regulatory protein binding sites.",
+    "Your answer should be a percentage value (0-1) indicating the proximal isoform usage ratio, where higher values indicate preference for the proximal site."
+]
+
+# 9.7 RNA: Modification
+bio_rna_modification_abstract = "You are tasked with identifying chemical modifications on RNA sequences."
+
+bio_rna_modification_description = [
+    "You will be provided with an RNA sequence.",
+    "Your task is to predict the type of RNA modification present (e.g., m6A, Am, Pseudouridine, m5C, etc.).",
+    "RNA modifications are chemical alterations that regulate RNA stability, translation efficiency, localization, and protein binding.",
+    "During reasoning, consider: sequence context around modification sites, consensus motifs (e.g., DRACH motif for m6A methylation), RNA secondary structure stability, and modification enzyme recognition patterns.",
+    "Your answer should specify the type of modification detected."
+]
+
+# 9.8 RNA: Translation Regulation
+bio_rna_translation_regulation_abstract = "You are tasked with predicting RNA translation efficiency and regulatory mechanisms."
+
+bio_rna_translation_regulation_description = [
+    "You will be provided with an RNA sequence (may include 5'UTR, coding region, or full transcript).",
+    "Your task may involve predicting:",
+    "  - Mean ribosome loading (ribosome density) on the transcript",
+    "  - siRNA knockdown efficiency (percentage of mRNA remaining after treatment)",
+    "  - RNA switch ON/OFF behavior (expression levels in different states)",
+    "Ribosome loading reflects translation efficiency and is influenced by: 5'UTR structure and length, Kozak sequence context, uORFs (upstream open reading frames), codon usage and tRNA availability.",
+    "siRNA efficiency depends on: sequence composition, GC content, thermodynamic properties, target site accessibility, and potential off-target effects.",
+    "RNA switches undergo conformational changes: consider RNA secondary structure, aptamer domains, expression platforms, and switching mechanism.",
+    "Your answer format depends on the specific task: ribosome loading intensity, percentage of remaining mRNA, or ON/OFF state values with dynamic range."
+]
+
+# 9.9 RNA: Function
+bio_rna_function_abstract = "You are tasked with classifying RNA sequences and predicting their functional properties."
+
+bio_rna_function_description = [
+    "You will be provided with an RNA sequence.",
+    "Your task may involve:",
+    "  - Classifying non-coding RNA into functional families (e.g., HACA-box, snoRNA, miRNA, lncRNA)",
+    "  - Predicting CRISPR guide RNA on-target efficiency (gene disruption success rate)",
+    "For ncRNA classification, consider: sequence motifs and consensus sequences, secondary structure patterns (stem-loops, pseudoknots), length distributions, and conserved functional elements.",
+    "For CRISPR efficiency, consider: GC content and distribution, nucleotide composition at key positions, guide RNA secondary structure, target site chromatin accessibility, and PAM sequence context.",
+    "Your answer should be: ncRNA family classification or CRISPR efficiency score (0-1)."
+]
+
+# 9.10 Protein: Stability
+bio_protein_stability_abstract = "You are tasked with predicting protein stability and folding properties."
+
+bio_protein_stability_description = [
+    "You will be provided with a protein amino acid sequence.",
+    "Your task may involve predicting:",
+    "  - Protein solubility in aqueous solution (soluble/insoluble)",
+    "  - Protein stability score or mutation-induced stability changes",
+    "  - Melting temperature (Tm) - temperature at which 50% of protein is denatured",
+    "Protein stability is determined by: hydrophobic core packing, hydrogen bond networks, disulfide bonds, electrostatic interactions (salt bridges), and conformational entropy.",
+    "Solubility depends on: hydrophobicity distribution, charged residue content and distribution, aggregation-prone regions, and structural disorder propensity.",
+    "Thermostability is influenced by: number and position of disulfide bonds, salt bridges and ion pairs, hydrophobic core size, protein compactness, and sequence length.",
+    "During reasoning, consider: amino acid composition, predicted secondary structure, physicochemical properties, and sequence-based aggregation predictors.",
+    "Your answer format depends on the task: binary classification (soluble/insoluble), stability score, or temperature value in degrees Celsius."
+]
+
+# 9.11 Protein: Function
+bio_protein_function_abstract = "You are tasked with predicting protein functional properties and characteristics."
+
+bio_protein_function_description = [
+    "You will be provided with a protein amino acid sequence.",
+    "Your task may involve predicting:",
+    "  - Enzymatic function and EC number (Enzyme Commission classification)",
+    "  - Fluorescence intensity for fluorescent protein variants (typically GFP family)",
+    "EC numbers are hierarchical (EC X.X.X.X): first digit indicates enzyme class (oxidoreductase, transferase, hydrolase, etc.), followed by progressively specific subclasses.",
+    "For EC prediction, consider: presence of catalytic domains, active site motifs (catalytic triads, zinc-binding sites), and sequence similarity to known enzymes.",
+    "Fluorescence intensity depends on: chromophore chemical environment, protein folding quality and structural stability, quantum yield, maturation efficiency, and solvent accessibility.",
+    "For fluorescence, consider: mutations affecting the chromophore, structural changes in the beta-barrel, and amino acids in the chromophore vicinity.",
+    "Your answer should be: one or more EC numbers (e.g., EC 3.2.2.9) or a numerical fluorescence intensity value."
+]
+
+# 9.12 Molecular Interaction
+bio_molecular_interaction_abstract = "You are tasked with predicting binding interactions between biological molecules."
+
+bio_molecular_interaction_description = [
+    "You will be provided with two molecular sequences that may interact.",
+    "Interaction types include:",
+    "  - RNA-protein interaction: RNA sequence and protein sequence",
+    "  - Antibody-antigen interaction: antibody sequence and antigen sequence",
+    "RNA-protein interactions are mediated by: RNA-binding domains (RRM, KH, dsRBD, Zinc fingers) in proteins, RNA secondary structure elements (stem-loops, bulges, internal loops), sequence-specific recognition motifs, and electrostatic complementarity between charged residues and RNA phosphate backbone.",
+    "Antibody-antigen binding involves: CDR (Complementarity-Determining Region) loops in antibodies (especially CDR3), epitope accessibility on antigen surface, shape and chemical complementarity, electrostatic and hydrophobic interactions.",
+    "During reasoning, consider: presence of interaction domains/motifs, structural features enabling binding, physicochemical complementarity, and known binding patterns.",
+    "Your answer should be: 'Positive' (interaction exists) or 'Negative' (no interaction), sometimes with affinity indication."
+]
+
 # ============================================================================
 # Task Registry
 # ============================================================================
@@ -375,138 +544,163 @@ tasks = {
         'sc_ann': {
             'abstract': sc_ann_task_abstract,
             'description': sc_ann_task_description_list,
-            'task_type': 'cell'
+            'task_type': 'cell',
+            'file': 'sc_ann/dataset.csv'
         },
         'perturb_de': {
             'abstract': perturb_de_task_abstract,
             'description': perturb_de_task_description_list,
-            'task_type': 'cell'
+            'task_type': 'cell',
+            'file': 'de/de.csv'
         },
         'perturb_dir': {
             'abstract': perturb_dir_task_abstract,
             'description': perturb_dir_task_description_list,
-            'task_type': 'cell'
+            'task_type': 'cell',
+            'file': 'dir/dir.csv'
         },
     },
     'Mol-Instructions': {
         'catalytic_activity': {
             'abstract': mol_catalytic_activity_abstract,
             'description': mol_catalytic_activity_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/Mol_Instructions.csv'
         },
         'domain_motif': {
             'abstract': mol_domain_motif_abstract,
             'description': mol_domain_motif_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/Mol_Instructions.csv'
         },
         'general_function': {
             'abstract': mol_general_function_abstract,
             'description': mol_general_function_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/Mol_Instructions.csv'
         },
         'protein_function': {
             'abstract': mol_protein_function_abstract,
             'description': mol_protein_function_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/Mol_Instructions.csv'
         },
     },
     'UniProtQA': {
         'function': {
             'abstract': uniprotqa_function_abstract,
             'description': uniprotqa_function_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/UniProtQA.csv'
         },
         'naming': {
             'abstract': uniprotqa_naming_abstract,
             'description': uniprotqa_naming_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/UniProtQA.csv'
         },
         'family': {
             'abstract': uniprotqa_family_abstract,
             'description': uniprotqa_family_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/UniProtQA.csv'
         },
         'location': {
             'abstract': uniprotqa_location_abstract,
             'description': uniprotqa_location_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/UniProtQA.csv'
         },
         'other': {
             'abstract': uniprotqa_other_abstract,
             'description': uniprotqa_other_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/UniProtQA.csv'
         },
     },
     'Pika-DS': {
         'ds_qa': {
             'abstract': pika_ds_qa_abstract,
             'description': pika_ds_qa_description,
-            'task_type': 'protein'
+            'task_type': 'protein',
+            'file': 'vc/Pika_DS.csv'
         },
     },
     'ChatNT-DNA': {
         'promoter': {
             'abstract': chatnt_promoter_abstract,
             'description': chatnt_promoter_description,
-            'task_type': 'dna'
+            'task_type': 'dna',
+            'file': 'vc/ChatNT.csv'
         },
         'enhancer': {
             'abstract': chatnt_enhancer_abstract,
             'description': chatnt_enhancer_description,
-            'task_type': 'dna'
+            'task_type': 'dna',
+            'file': 'vc/ChatNT.csv'
         },
         'splice_site': {
             'abstract': chatnt_splice_site_abstract,
             'description': chatnt_splice_site_description,
-            'task_type': 'dna'
+            'task_type': 'dna',
+            'file': 'vc/ChatNT.csv'
         },
         'chromatin': {
             'abstract': chatnt_chromatin_abstract,
             'description': chatnt_chromatin_description,
-            'task_type': 'dna'
+            'task_type': 'dna',
+            'file': 'vc/ChatNT.csv'
         },
         'methylation': {
             'abstract': chatnt_methylation_abstract,
             'description': chatnt_methylation_description,
-            'task_type': 'dna'
+            'task_type': 'dna',
+            'file': 'vc/ChatNT.csv'
         },
         'histone': {
             'abstract': chatnt_histone_abstract,
             'description': chatnt_histone_description,
-            'task_type': 'dna'
+            'task_type': 'dna',
+            'file': 'vc/ChatNT.csv'
         },
     },
     'ChatNT-RNA': {
         'rna_degradation': {
             'abstract': chatnt_rna_degradation_abstract,
             'description': chatnt_rna_degradation_description,
-            'task_type': 'dna'
+            'task_type': 'rna',
+            'file': 'vc/ChatNT.csv'
         },
         'lncrna': {
             'abstract': chatnt_lncrna_abstract,
             'description': chatnt_lncrna_description,
-            'task_type': 'dna'
+            'task_type': 'rna',
+            'file': 'vc/ChatNT.csv'
         },
         'polya': {
             'abstract': chatnt_polya_abstract,
             'description': chatnt_polya_description,
-            'task_type': 'dna'
+            'task_type': 'rna',
+            'file': 'vc/ChatNT.csv'
         },
     },
     'ChatNT-Protein': {
         'protein_stability': {
             'abstract': chatnt_protein_stability_abstract,
             'description': chatnt_protein_stability_description,
+            'file': 'vc/ChatNT.csv',
             'task_type': 'protein'
         },
         'protein_fluorescence': {
             'abstract': chatnt_protein_fluorescence_abstract,
             'description': chatnt_protein_fluorescence_description,
+            'file': 'vc/ChatNT.csv',
             'task_type': 'protein'
         },
         'protein_meltome': {
             'abstract': chatnt_protein_meltome_abstract,
             'description': chatnt_protein_meltome_description,
+            'file': 'vc/ChatNT.csv',
             'task_type': 'protein'
         },
     },
@@ -514,33 +708,131 @@ tasks = {
         'gene_dna_promoter': {
             'abstract': llama_gene_dna_promoter_abstract,
             'description': llama_gene_dna_promoter_description,
+            'file': 'vc/LLaMA_Gene.csv',
             'task_type': 'dna'
         },
         'gene_protein_function': {
             'abstract': llama_gene_protein_function_abstract,
             'description': llama_gene_protein_function_description,
+            'file': 'vc/LLaMA_Gene.csv',
             'task_type': 'protein'
         },
     },
     'Biology-Instructions': {
-        'rna_protein_interaction': {
-            'abstract': bio_rna_protein_interaction_abstract,
-            'description': bio_rna_protein_interaction_description,
+        'promoter_detection': {
+            'abstract': bio_promoter_detection_abstract,
+            'description': bio_promoter_detection_description,
+            'task_type': 'dna',
+            'file': 'vc/Biology_Instructions/by_task_type/promoter_detection.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'epigenetic_marks': {
+            'abstract': bio_epigenetic_marks_abstract,
+            'description': bio_epigenetic_marks_description,
+            'task_type': 'dna',
+            'file': 'vc/Biology_Instructions/by_task_type/epigenetic_marks.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'tf_binding': {
+            'abstract': bio_tf_binding_abstract,
+            'description': bio_tf_binding_description,
+            'task_type': 'dna',
+            'file': 'vc/Biology_Instructions/by_task_type/tf_binding.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'enhancer_activity': {
+            'abstract': bio_enhancer_activity_abstract,
+            'description': bio_enhancer_activity_description,
+            'task_type': 'dna',
+            'file': 'vc/Biology_Instructions/by_task_type/enhancer_activity.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'regulatory_interaction': {
+            'abstract': bio_regulatory_interaction_abstract,
+            'description': bio_regulatory_interaction_description,
+            'task_type': 'dna',
+            'file': 'vc/Biology_Instructions/by_task_type/regulatory_interaction.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'rna_isoform': {
+            'abstract': bio_rna_isoform_abstract,
+            'description': bio_rna_isoform_description,
+            'task_type': 'rna',
+            'file': 'vc/Biology_Instructions/by_task_type/rna_isoform.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'rna_modification': {
+            'abstract': bio_rna_modification_abstract,
+            'description': bio_rna_modification_description,
+            'task_type': 'rna',
+            'file': 'vc/Biology_Instructions/by_task_type/rna_modification.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'rna_translation_regulation': {
+            'abstract': bio_rna_translation_regulation_abstract,
+            'description': bio_rna_translation_regulation_description,
+            'task_type': 'rna',
+            'file': 'vc/Biology_Instructions/by_task_type/rna_translation_regulation.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'rna_function': {
+            'abstract': bio_rna_function_abstract,
+            'description': bio_rna_function_description,
+            'task_type': 'rna',
+            'file': 'vc/Biology_Instructions/by_task_type/rna_function.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'protein_stability': {
+            'abstract': bio_protein_stability_abstract,
+            'description': bio_protein_stability_description,
+            'task_type': 'protein',
+            'file': 'vc/Biology_Instructions/by_task_type/protein_stability.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'protein_function': {
+            'abstract': bio_protein_function_abstract,
+            'description': bio_protein_function_description,
+            'task_type': 'protein',
+            'file': 'vc/Biology_Instructions/by_task_type/protein_function.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
+        'molecular_interaction': {
+            'abstract': bio_molecular_interaction_abstract,
+            'description': bio_molecular_interaction_description,
             'task_type': 'multi',
-            'filter': "split == 'train' and task_type == 'rna_protein_interaction'"
-        }
+            'file': 'vc/Biology_Instructions/by_task_type/molecular_interaction.csv',
+            'samples': 1000,
+            'filter': 'split == "train"'
+        },
     },
-    'Plant-specific': {
+    'Plant-Specific': {
         'promoter_strength': {
             'abstract': chatnt_plant_promoter_strength_abstract,
             'description': chatnt_plant_promoter_strength_description,
-            'task_type': 'dna'
+            'task_type': 'dna',
+            'file': 'vc/ChatNT.csv'
         },
     }
 }
 
 def format_list(info_list):
-    return "\n- ".join(info_list)
-
-
-
+    fmt_str = ""
+    for info in info_list:
+        if info.strip(" \t\n"):
+            # 检查是否以 - 开头(列表项)
+            if info.strip().startswith('-'):
+                fmt_str += f"  {info}\n"
+            else:
+                fmt_str += f"- {info}\n"
+    return fmt_str.strip()

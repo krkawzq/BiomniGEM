@@ -7,6 +7,7 @@ import re
 parser = argparse.ArgumentParser()
 parser.add_argument("--data_path", type=str, required=True, help="输入数据路径")
 parser.add_argument("--save_path", type=str, required=True, help="输出路径")
+parser.add_argument("--task", type=str, required=True, help="任务名称")
 args = parser.parse_args()
 
 def main():
@@ -40,6 +41,7 @@ def main():
             "user": row["user"],
             "traces": row["traces"],
             "answer": row["answer"],
+            "task": args.task,
         })
     
     # 保存结果到指定路径

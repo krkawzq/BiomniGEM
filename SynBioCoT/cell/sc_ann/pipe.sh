@@ -46,4 +46,5 @@ done
 
 python ${home}/SynBioCoT/make_traces.py \
     --data_path "${save_dir}/cot.csv" \
-    --save_path "${save_dir}/traces.json"
+    --save_path "${save_dir}/traces.json" \
+    --task "single cell annotation"
