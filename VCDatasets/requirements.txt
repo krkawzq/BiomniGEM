@@ -1,0 +1,40 @@
+# Mol-Instructions 数据集下载和处理所需依赖
+# 适配 Python 3.12 环境
+# 安装命令：
+# conda create -n vc2 python=3.12
+# pip install -r requirements.txt
+
+# 核心依赖 - Hugging Face 生态
+datasets>=2.16.0         # Hugging Face datasets 库，支持 Python 3.12
+huggingface-hub>=0.19.0  # Hugging Face Hub 客户端，最新版本
+transformers>=4.36.0     # Transformers 库，支持最新 Python 版本
+
+# 数据处理核心库
+pandas>=2.0.0            # 数据处理和分析，Python 3.12 兼容版本
+numpy>=1.24.0            # 数值计算，支持 Python 3.12
+pyarrow>=14.0.0          # 高效的列式数据格式，最新稳定版
+
+# 网络和文件处理
+requests>=2.31.0         # HTTP 请求库
+tqdm>=4.66.0            # 进度条显示
+fsspec>=2023.12.0       # 文件系统抽象层，datasets 依赖
+
+# 配置和序列化
+pyyaml>=6.0.1           # YAML 配置文件支持
+packaging>=23.0         # 包管理工具，避免依赖冲突
+
+# 多进程和并发
+multiprocess>=0.70.15   # 增强的多进程支持，datasets 可能需要
+
+# 可选但推荐的依赖
+aiohttp>=3.9.0          # 异步 HTTP 客户端，提升下载性能
+certifi>=2023.11.17     # SSL 证书验证
+
+# 科学计算相关（如需要处理分子数据）
+# torch>=2.1.0          # PyTorch，支持 Python 3.12
+# rdkit>=2023.9.1       # 化学信息学库（需要 conda 安装）
+
+# 注意事项：
+# 1. Python 3.12 是较新版本，某些包可能需要最新版本才能兼容
+# 2. 如果遇到兼容性问题，可以尝试 --upgrade 参数强制更新
+# 3. RDKit 建议通过 conda 安装：conda install -c conda-forge rdkit

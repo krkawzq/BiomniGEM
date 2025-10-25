@@ -17,8 +17,3 @@ dependencies = [
     "scipy>=1.16.2",
     "tqdm>=4.67.1",
 ]
-
-[tool.uv.workspace]
-members = [
-    "Reason-Distill",
-]

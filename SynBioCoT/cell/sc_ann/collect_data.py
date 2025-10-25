@@ -25,6 +25,17 @@ process_pipe = cp.Pipeline([
     )
 ])
 
+def apply(adatas, pipe):
+    new = []
+    for adata in adatas:
+        new.append(pipe(adata))
+    return new
+
+def ensure_path(path):
+    dir_path = os.path.dirname(path)
+    if dir_path and not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
 def main():
     # -- checks
     print(f"Checking data paths: {args.data_path}")
@@ -46,6 +57,8 @@ def main():
     if not args.save_path.endswith(".csv"):
         print(f"Warning: Save path {args.save_path} is not a csv file")
         exit(1)
+    ensure_path(args.save_path)
+    
     print("--------------------------------")
     print(f"Loading cell type map from {args.cell_type_map_path}")
     print("--------------------------------")
@@ -76,7 +89,7 @@ def main():
         count_column="n_genes"
     )
     
-    map(cell_sentence_pipe, adatas)
+    apply(adatas, cell_sentence_pipe)
     
     # -- save obs
     print("Saving obs...")
@@ -90,6 +103,8 @@ def main():
     dfs = [maintain(adata.obs, adata.name) for adata in adatas]
     df = pd.concat(dfs)
     df.to_csv(args.save_path, index=False)
+    print("--------------------------------")
+    print("all done!")
 
 if __name__ == "__main__":
     main()

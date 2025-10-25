@@ -1,0 +1,25 @@
+{
+    "user": [
+    "From single-cell RNA sequencing, the expression profile of this cell was ranked in descending order, and the top {n_genes} highly expressed genes were selected:\n{cell_sentence}\n\nPlease tell me what the cell type is. You have to select your answer from the following list:\n{cell_type_list}",
+    "This expression profile was obtained from a single cell by sequencing and listing its top {n_genes} most highly expressed genes (ranked highest to lowest):\n{cell_sentence}\n\nPlease analyze and indicate the most likely cell type. You have to select your answer from the following list:\n{cell_type_list}",
+    "Based on single-cell sequencing, this cell’s transcriptome was summarized by its top {n_genes} genes in descending expression order:\n{cell_sentence}\n\nWhich cell type does this profile most likely represent? You have to select your answer from the following list:\n{cell_type_list}",
+    "The following {n_genes} genes are the most highly expressed in one cell according to single-cell RNA sequencing, arranged from high to low expression:\n{cell_sentence}\n\nPlease determine the corresponding cell type. You have to select your answer from the following list:\n{cell_type_list}",
+    "Single-cell RNA sequencing identified the top {n_genes} expressed genes of this cell:\n{cell_sentence}\n\nWhat is the most appropriate cell type for this expression profile? You have to select your answer from the following list:\n{cell_type_list}",
+    "Here is the expression profile of one cell derived from single-cell RNA sequencing, showing the top {n_genes} genes in descending order:\n{cell_sentence}\n\nPlease analyze and state the most probable cell type. You have to select your answer from the following list:\n{cell_type_list}",
+    "According to single-cell RNA sequencing, the following {n_genes} genes are most abundantly expressed in this cell:\n{cell_sentence}\n\nPlease tell me which cell type this likely corresponds to. You have to select your answer from the following list:\n{cell_type_list}",
+    "This cell’s expression profile, obtained from single-cell sequencing, is represented by its top {n_genes} highly expressed genes:\n{cell_sentence}\n\nPlease analyze and identify the most likely cell type. You have to select your answer from the following list:\n{cell_type_list}",
+    "The following is the expression signature of a single cell, listing its {n_genes} most expressed genes in descending order:\n{cell_sentence}\n\nWhich cell type does this gene pattern suggest? You have to select your answer from the following list:\n{cell_type_list}",
+    "From single-cell sequencing data, the {n_genes} genes with the highest expression in this cell are shown below:\n{cell_sentence}\n\nPlease analyze and indicate what type of cell this most likely is. You have to select your answer from the following list:\n{cell_type_list}",
+    "Here is a list of the top {n_genes} highly expressed genes for a single cell, ranked by expression level:\n{cell_sentence}\n\nPlease classify this cell into the appropriate type. You have to select your answer from the following list:\n{cell_type_list}",
+    "A single cell’s expression profile was derived from sequencing and ranked by the top {n_genes} expressed genes:\n{cell_sentence}\n\nWhich cell type best matches this profile? You have to select your answer from the following list:\n{cell_type_list}",
+    "The following expression profile comes from one cell, represented by its top {n_genes} expressed genes (highest → lowest):\n{cell_sentence}\n\nPlease determine the corresponding cell type. You have to select your answer from the following list:\n{cell_type_list}",
+    "From single-cell RNA sequencing, the {n_genes} most expressed genes of this cell are:\n{cell_sentence}\n\nWhich cell type do these genes best correspond to? You have to select your answer from the following list:\n{cell_type_list}",
+    "The descending list below shows the {n_genes} most abundantly expressed genes in one cell, based on sequencing results:\n{cell_sentence}\n\nPlease indicate the most suitable cell type annotation. You have to select your answer from the following list:\n{cell_type_list}",
+    "Single-cell sequencing identified the following top {n_genes} highly expressed genes:\n{cell_sentence}\n\nPlease tell me the most likely cell type for this profile. You have to select your answer from the following list:\n{cell_type_list}"
+  ],
+  "label": "{cell_type}",
+  "cell_type": "{cell_type}",
+  "cell_sentence": "{cell_sentence}",
+  "cell_type_list": "{cell_type_list}"
+}
+  

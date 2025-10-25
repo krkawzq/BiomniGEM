@@ -1,0 +1,126 @@
+---
+alwaysApply: true
+description: Agent collaboration and development workflow guidelines for the Jilin-AI iGEM wiki project
+---
+
+# Agent Collaboration Guidelines
+
+## Core Principles
+
+### 1. Unified Management
+- All collaboration with humans must be document-driven and centrally managed
+- Use [AGENT.md](mdc:AGENT.md) as the primary reference for agent behavior
+- Maintain clear documentation trails for all decisions and implementations
+
+### 2. Incremental Development
+- **Start with MVP**: Begin with the simplest working implementation
+- **Gradual Expansion**: Add complexity only when needed
+- **Avoid Over-Engineering**: Resist introducing complex systems prematurely
+- Every change should be a logical, reviewable step forward
+
+### 3. Traceability
+- Document all task details and progress in structured logs
+- Maintain clear records of decisions, implementations, and rationale
+- Ensure every change can be traced back to a specific requirement or decision
+
+## Human Interaction Protocol
+
+### Before Any Action
+1. **Discuss First**: Engage in thorough discussion before any implementation
+2. **Align Understanding**: Ensure complete alignment on goals and approach
+3. **Seek Confirmation**: Wait for explicit human confirmation before proceeding
+
+### Communication Requirements
+- **Explicit Confirmation Required**: Never execute code tasks or modifications without clear approval
+- **Step-by-Step Process**: Break down development into transparent, reviewable steps
+- **Pre-Implementation Summary**: Before coding, summarize:
+  - Consensus points
+  - Assumptions being made
+  - Constraints and limitations
+  - Planned approach
+- **Language**: Always response in Chinese.
+
+### Development Workflow
+1. **Understand**: Clarify requirements through questions
+2. **Summarize**: Present understanding for validation
+3. **Plan**: Outline step-by-step implementation approach
+4. **Confirm**: Wait for explicit approval
+5. **Implement**: Execute in transparent, incremental steps
+6. **Review**: Present results and gather feedback
+
+### Documentation
+- **Documentation Files:** Store documentation in the `./docs/` directory, organized by module in separate Markdown files
+- **Documentation Requirements:** 
+  - Documentation serves to record implementation details and facilitate effective human-agent collaboration
+  - Documentation must be comprehensive and include:
+    - API interfaces and endpoints
+    - Implementation details and technical decisions
+    - Development phases, pending tasks, todo lists, and known bugs
+    - Communication records with human collaborators
+
+## Project-Specific Context
+
+### Project Structure
+This is the **Jilin-AI 2025 iGEM Competition Wiki**, built with:
+- **Framework**: Flask ([app.py](mdc:app.py))
+- **Build System**: Flask-Frozen for static site generation ([build.py](mdc:build.py))
+- **Key Directories**:
+  - `wiki/`: Templates and layouts ([layout.html](mdc:wiki/layout.html), [menu.html](mdc:wiki/menu.html))
+  - `wiki/pages/`: HTML page content
+  - `static/`: CSS, JavaScript, and static assets
+  - `scripts/`: Utility scripts for conversions and automation
+
+### Primary Development Areas
+- Edit files in `static/`, `wiki/`, and `wiki/pages/` directories
+- Static assets (CSS, JS) go in `static/`
+- HTML pages go in `wiki/pages/`
+- Layout and menu modifications in `wiki/` root files
+
+### Constraints
+- Images must be hosted on `static.igem.wiki`
+- Videos must be embedded from iGEM Video Universe
+- License (CC-by-4.0) must not be modified
+- Follow iGEM competition wiki requirements
+
+## Code Quality Standards
+
+### Before Writing Code
+- Read relevant existing files to understand patterns
+- Check for similar implementations elsewhere
+- Verify compatibility with existing architecture
+- Consider edge cases and error handling
+
+### During Implementation
+- Follow existing code style and conventions
+- Add clear comments for complex logic
+- Keep functions focused and modular
+- Use meaningful variable and function names
+
+### After Implementation
+- Test changes locally when possible
+- Document any new functionality
+- Update relevant documentation files
+- Clean up any temporary files or debug code
+
+## Decision-Making Framework
+
+When uncertain:
+1. **Explore**: Use codebase search to understand existing patterns
+2. **Ask**: Request clarification rather than making assumptions
+3. **Propose**: Present options with trade-offs for human decision
+4. **Document**: Record the decision and rationale
+
+When blocked:
+1. Clearly explain the blocker
+2. Present what information is needed
+3. Suggest potential paths forward
+4. Wait for human guidance
+
+## Success Criteria
+
+Every interaction should result in:
+- Clear mutual understanding
+- Documented decisions and rationale
+- Traceable implementation steps
+- Maintainable, modular code
+- Updated relevant documentation
