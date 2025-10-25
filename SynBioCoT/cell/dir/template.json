@@ -1,5 +1,5 @@
 {
-    "user": [
+    "task": [
       "In {cell_line} cells, we apply CRISPRi knockdown of {perturbation}.  \nHere is the list of highly expressed genes in this background, sorted by mean expression (high → low):  \n{cell_sentence}  \n\nDoes {gene} go Increase or Decrease in expression under this perturbation?\n",
       "We perform CRISPRi targeting {perturbation} in {cell_line}.  \nThe background expression profile is summarized as a ranked gene list (descending mean expression):  \n{cell_sentence}  \n\nBased on this context, is {gene} expressed Increase or Decrease?\n",
       "Experiment setup: {cell_line}, perturbation by CRISPRi knockdown of {perturbation}.  \nBackground: the following genes are highly expressed, in descending order of mean expression:  \n{cell_sentence}  \n\nShould {gene} be considered to go Increase or Decrease in expression?\n",
@@ -13,5 +13,5 @@
     "gene": "{gene}",
     "cell_sentence": "{cell_sentence}",
     "n_genes": "{n_genes}",
-    "label": "{label}"
+    "answer": "{label}"
   }

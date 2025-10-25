@@ -37,12 +37,12 @@ done
 #     --samples 1000 \
 #     --seed 42
 
-python ${home}/SynBioCoT/make_cot.py \
-    --data_path "${save_dir}/task.csv" \
-    --save_path "${save_dir}/cot.csv" \
-    --model "gpt-5-chat-latest" \
-    --samples 1000 \
-    --max_concurrency 30
+# python ${home}/SynBioCoT/make_cot.py \
+#     --data_path "${save_dir}/task.csv" \
+#     --save_path "${save_dir}/cot.csv" \
+#     --model "gpt-5-chat-latest" \
+#     --samples 1000 \
+#     --max_concurrency 30
 
 python ${home}/SynBioCoT/make_traces.py \
     --data_path "${save_dir}/cot.csv" \

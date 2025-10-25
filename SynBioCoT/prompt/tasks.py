@@ -527,7 +527,7 @@ tasks = {
             'abstract': bio_rna_protein_interaction_abstract,
             'description': bio_rna_protein_interaction_description,
             'task_type': 'multi',
-            'filter': 'metadata.split=train, metadata.task_type=rna_protein_interaction, samples=1000, sampler=random'
+            'filter': "split == 'train' and task_type == 'rna_protein_interaction'"
         }
     },
     'Plant-specific': {

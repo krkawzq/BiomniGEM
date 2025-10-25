@@ -15,6 +15,7 @@ def main():
     new_df["system"] = df["system"]
     new_df["user"] = df["task"]
     new_df["response"] = df["response"]
+    new_df["answer"] = df["answer"]
     
     def get_traces(response: str):
         try:
@@ -37,7 +38,8 @@ def main():
         datas.append({
             "system": row["system"],
             "user": row["user"],
-            "traces": row["traces"]
+            "traces": row["traces"],
+            "answer": row["answer"],
         })
     
     # 保存结果到指定路径
