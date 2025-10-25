@@ -18,5 +18,8 @@ VCDatasets/datasets/*
 
 hf_dataset
 
+test.py
+test.ipynb
+remove_unknow.py
 
-
+.env
