@@ -16,5 +16,7 @@ data/*
 
 VCDatasets/datasets/*
 
+hf_dataset
+
 
 
