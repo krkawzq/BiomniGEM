@@ -25,3 +25,5 @@ remove_unknow.py
 .env
 
 experiment
+
+train/llama-factory/data

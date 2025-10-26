@@ -10,9 +10,9 @@ set -o pipefail
 # -------------------------------
 # 基本路径配置
 # -------------------------------
-MODEL_PATH="/root/autodl-fs/hf-models/Base-SR"
-TRAIN_DIR="/root/autodl-fs/hf-datasets/SynBioCoT/arrow/train"
-VAL_DIR="/root/autodl-fs/hf-datasets/SynBioCoT/arrow/cell_validation"
+MODEL_PATH="/root/autodl-fs/wzq/models/models--SciReason--SciReasoner-8B/snapshots/772c4adaf43c750db5ef04d6f567148ca3daf7b0"
+TRAIN_DIR="/root/autodl-fs/wzq/datasets/SynBioCoT/arrow/train"
+VAL_DIR="/root/autodl-fs/wzq/datasets/SynBioCoT/arrow/cell_validation"
 OUTPUT_DIR="/root/autodl-fs/wzq/BiomniGEM/experiment/test-$(date +%Y%m%d_%H%M%S)"
 
 mkdir -p "${OUTPUT_DIR}"
@@ -20,8 +20,8 @@ mkdir -p "${OUTPUT_DIR}"
 # -------------------------------
 # LoRA 参数 (测试配置：小容量)
 # -------------------------------
-LORA_R=32              # 小 rank 快速测试
-LORA_ALPHA=64          # alpha=2×r
+LORA_R=96              # 小 rank 快速测试
+LORA_ALPHA=192          # alpha=2×r
 LORA_DROPOUT=0.05
 
 # -------------------------------
@@ -30,9 +30,9 @@ LORA_DROPOUT=0.05
 LR=2e-4
 WEIGHT_DECAY=0.05
 EPOCHS=1                # 只训练1个epoch
-PER_DEVICE_BATCH=32      # 小批次
+PER_DEVICE_BATCH=8      # 小批次
 GRAD_ACCUM=4            # 小累积（有效batch=2×2×4=16）
-CUTOFF_LEN=2048         # 短序列长度
+CUTOFF_LEN=4096         # 短序列长度
 WARMUP_RATIO=0.05
 SEED=42
 
@@ -46,11 +46,12 @@ SAVE_TOTAL_LIMIT=2      # 只保留2个checkpoint
 # -------------------------------
 # 评估配置 (测试配置：小样本快速评估)
 # -------------------------------
-INITIAL_EVAL=true          # 测试初始评估
+INITIAL_EVAL=false          # 测试初始评估
 MAX_TRAIN_SAMPLES=1024      # 只用500个样本训练
 MAX_EVAL_SAMPLES=50        # 只用50个样本评估
-EVAL_BATCH_SIZE=48          # 小批次评估
+EVAL_BATCH_SIZE=50          # 小批次评估
 NUM_PROC=4
+FILTER_QUALITY="gold"      # 过滤训练数据的 quality 值（设为 "" 则不过滤）
 
 # -------------------------------
 # 高级配置
@@ -91,6 +92,7 @@ CMD="python3 train_sft.py \
   --max_eval_samples_arg ${MAX_EVAL_SAMPLES} \
   --eval_batch_size ${EVAL_BATCH_SIZE} \
   --max_train_samples ${MAX_TRAIN_SAMPLES} \
+  --filter_quality ${FILTER_QUALITY} \
   --seed ${SEED}"
 
 # 可选项拼接
