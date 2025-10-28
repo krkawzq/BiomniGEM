@@ -1,98 +1,127 @@
 #!/usr/bin/env bash
-# 用途：加速器(Accelerate) + FSDP + LoRA 的 SFT 训练一键启动脚本
-# 环境依赖：accelerate、transformers、datasets、peft、torch 均需预先安装
-# 配置文件建议参考 accelerate config，选择 FSDP / bf16 / 进程数=GPU 数量
+# 用途：Accelerate + (DDP/FSDP) + LoRA 的 SFT 训练一键启动脚本（稳健版）
+# 依赖：accelerate、transformers、datasets、peft、torch、jinja2
+# 建议先 `accelerate config` 选择 FSDP/bf16；多卡务必用 accelerate/torchrun 启动
 
 set -euo pipefail
 
-############################
-# 可根据实际情况修改的默认推荐配置
-############################
+########################################
+# 必填/常改配置
+########################################
+MODEL_PATH="/root/autodl-fs/wzq/models/models--SciReason--SciReasoner-8B/snapshots/772c4adaf43c750db5ef04d6f567148ca3daf7b0"
+TRAIN_JSONL="/root/autodl-fs/wzq/BiomniGEM/train/llama-factory/data/train_sft.jsonl"
+VAL_JSONL="/root/autodl-fs/wzq/datasets/SynBioCoT/jsonl/cell_validation.jsonl"   # 留空则跳过评估
+OUT_ROOT="/root/autodl-fs/wzq/BiomniGEM/experiment"
+PY_SCRIPT="/root/autodl-fs/wzq/BiomniGEM/train/sft/train.py"
 
-# ========== 必填 ==========
-MODEL_PATH="/root/autodl-fs/wzq/models/models--SciReason--SciReasoner-8B/snapshots/772c4adaf43c750db5ef04d6f567148ca3daf7b0"         # 预训练模型目录
-TRAIN_JSONL="/root/autodl-fs/wzq/BiomniGEM/train/llama-factory/data/train_sft.jsonl"                                              # 训练集
-VAL_JSONL="/root/autodl-fs/wzq/datasets/SynBioCoT/jsonl/cell_validation.jsonl"                                                    # 验证集，如无可设为空字符串
-OUT_ROOT="/root/autodl-fs/wzq/BiomniGEM/experiment"                                                                              # 输出实验根目录
+# 指定 GPU（逗号分隔），留空=使用全部
+CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
 
-# ========== 可选 ==========
-# 指定GPU列表（如：CUDA_VISIBLE_DEVICES="0,1,2,3"；留空使用全部可用）
-CUDA_VISIBLE_DEVICES="0,1,2,3"
+# accelerate 配置文件（可留空）
+ACCEL_CFG="${ACCEL_CFG:-/root/autodl-tmp/huggingface/accelerate/default_config.yaml}"
 
-# accelerate 配置文件路径（留空则用默认）
-ACCEL_CFG="/root/autodl-tmp/huggingface/accelerate/default_config.yaml"
+########################################
+# 训练超参（可通过外部 export 覆盖）
+########################################
+SEED="${SEED:-42}"
+PER_DEVICE_TRAIN_BATCH_SIZE="${PER_DEVICE_TRAIN_BATCH_SIZE:-8}"
+PER_DEVICE_EVAL_BATCH_SIZE="${PER_DEVICE_EVAL_BATCH_SIZE:-32}"
+GRAD_ACCUM="${GRAD_ACCUM:-2}"
+LR="${LR:-1.5e-4}"
+WEIGHT_DECAY="${WEIGHT_DECAY:-0.05}"
+EPOCHS="${EPOCHS:-3}"
+SCHED="${SCHED:-cosine}"
+WARMUP_RATIO="${WARMUP_RATIO:-0.03}"
+CUTOFF_LEN="${CUTOFF_LEN:-4096}"
+MAX_NEW_TOKENS_EVAL="${MAX_NEW_TOKENS_EVAL:-1024}"
 
-# 训练推荐参数（如需个性化修改，可提前 export 环境变量覆盖默认值）
-SEED=42
-PER_DEVICE_TRAIN_BATCH_SIZE=8        # 建议: 8-16，根据GPU显存适配
-PER_DEVICE_EVAL_BATCH_SIZE=32
-GRAD_ACCUM="${GRAD_ACCUM:-8}"        # 梯度累积，显存紧张时可适当加大
-LR=1e-4
-WEIGHT_DECAY=0.05
-EPOCHS=3
-SCHED=cosine
-WARMUP_RATIO=0.03                    # 稍微减少，提升收敛速度
-CUTOFF_LEN=4096                      # 最大 token 长度
-MAX_NEW_TOKENS_EVAL=1024
+# 生成相关
+TEMP="${TEMP:-0.7}"
+TOP_P="${TOP_P:-0.9}"
+REP_PEN="${REP_PEN:-1.1}"
 
-# 生成相关参数
-TEMP=0.7
-TOP_P=0.9
-REP_PEN=1.1                          # 防止重复度更高一点
+# LoRA
+LORA_R="${LORA_R:-64}"
+LORA_ALPHA="${LORA_ALPHA:-128}"
+LORA_DROPOUT="${LORA_DROPOUT:-0.05}"
+LORA_TARGET="${LORA_TARGET:-q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj}"
 
-# LoRA 相关参数
-LORA_R=64
-LORA_ALPHA=128
-LORA_DROPOUT=0.05
-LORA_TARGET="q_proj,k_proj,v_proj,o_proj,gate_proj,up_proj,down_proj"
+# 日志/评估/保存
+LOGGING_STEPS="${LOGGING_STEPS:-10}"
+SAVE_STEPS="${SAVE_STEPS:-100}"
+EVAL_STEPS="${EVAL_STEPS:-100}"
+KEEP_BEST_K="${KEEP_BEST_K:-2}"
+KEEP_RECENT_N="${KEEP_RECENT_N:-5}"
 
-# 日志/模型保存/评估设置
-LOGGING_STEPS=10
-SAVE_STEPS=100
-EVAL_STEPS=100
-KEEP_BEST_K=2
-KEEP_RECENT_N=5
+# —— 分布式/数据管线稳健参数（与训练脚本保持一致）——
+DDP_TIMEOUT_MIN="${DDP_TIMEOUT_MIN:-10}"
+MAP_NUM_PROC="${MAP_NUM_PROC:-32}"       # datasets.map 多进程
+DL_WORKERS="${DL_WORKERS:-32}"           # DataLoader num_workers
+PIN_MEMORY="${PIN_MEMORY:-false}"       # true/false
+DISABLE_TOKENIZERS_PARALLEL="${DISABLE_TOKENIZERS_PARALLEL:-true}"
+DEBUG_MARKS="${DEBUG_MARKS:-true}"
 
-############################
-# 路径与时间戳处理
-############################
+# —— 新增：评估控制参数 —— 
+EVAL_MAX_SAMPLES="${EVAL_MAX_SAMPLES:-96}"        # 0=用全量验证集
+EVAL_SHUFFLE="${EVAL_SHUFFLE:-true}"            # true/false：每次评估前是否打乱
+EVAL_SHUFFLE_SEED="${EVAL_SHUFFLE_SEED:-42}"  # 打乱基准种子（脚本内会用 seed+global_step）
+
+########################################
+# NCCL/系统环境（可按需覆盖）
+########################################
+export PYTHONUNBUFFERED=1
+export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
+export TOKENIZERS_PARALLELISM=$([[ "${DISABLE_TOKENIZERS_PARALLEL}" == "true" ]] && echo "false" || echo "true")
+
+# 在多数 PCIe/容器环境下，以下设置更稳（可按需注释掉逐步开放）
+export NCCL_DEBUG="${NCCL_DEBUG:-INFO}"
+export TORCH_DISTRIBUTED_DEBUG="${TORCH_DISTRIBUTED_DEBUG:-DETAIL}"
+export NCCL_IB_DISABLE="${NCCL_IB_DISABLE:-1}"
+export NCCL_P2P_DISABLE="${NCCL_P2P_DISABLE:-1}"
+export NCCL_SHM_DISABLE="${NCCL_SHM_DISABLE:-1}"
+export NCCL_SOCKET_IFNAME="${NCCL_SOCKET_IFNAME:-eth0}"
+
+########################################
+# 输出与 GPU 数计算
+########################################
 TIMESTAMP="$(date +%Y%m%d-%H%M%S)"
 OUT_DIR="${OUT_ROOT}/exp-${TIMESTAMP}"
 mkdir -p "${OUT_DIR}"
+LOG_FILE="${OUT_DIR}/run.log"
 
-############################
+# 计算进程数（与 GPU 数一致）
+if [[ -n "${CUDA_VISIBLE_DEVICES:-}" ]]; then
+  IFS=',' read -ra _gpus <<< "${CUDA_VISIBLE_DEVICES}"
+  NPROC="${#_gpus[@]}"
+else
+  if command -v nvidia-smi >/dev/null 2>&1; then
+    NPROC="$(nvidia-smi -L | wc -l | tr -d ' ')"
+  else
+    NPROC=1
+  fi
+fi
+
+########################################
 # 基本检查
-############################
-if [[ ! -d "${MODEL_PATH}" && ! "${MODEL_PATH}" =~ "/" ]]; then
-  echo "[WARN] MODEL_PATH='${MODEL_PATH}' 不是本地目录，后续将尝试从 Huggingface Hub 拉取"
-fi
-
+########################################
 if [[ ! -f "${TRAIN_JSONL}" ]]; then
-  echo "[ERR ] 训练集不存在: ${TRAIN_JSONL}"
+  echo "[ERR ] 训练集不存在: ${TRAIN_JSONL}" | tee -a "${LOG_FILE}"
   exit 1
 fi
-
-if [[ -z "${VAL_JSONL}" ]]; then
-  echo "[INFO] 未指定验证集，将跳过评估"
-elif [[ ! -f "${VAL_JSONL}" ]]; then
-  echo "[ERR ] 验证集不存在: ${VAL_JSONL}"
+if [[ -n "${VAL_JSONL}" && ! -f "${VAL_JSONL}" ]]; then
+  echo "[ERR ] 验证集不存在: ${VAL_JSONL}" | tee -a "${LOG_FILE}"
   exit 1
 fi
-
 if ! command -v accelerate >/dev/null 2>&1; then
-  echo "[ERR ] accelerate 未安装，请先执行 'pip install accelerate'"
+  echo "[ERR ] accelerate 未安装，请先 'pip install -U accelerate'" | tee -a "${LOG_FILE}"
   exit 1
 fi
 
-############################
-# 拼接命令
-############################
-LAUNCH_CMD=(accelerate launch)
-if [[ -n "${ACCEL_CFG}" ]]; then
-  LAUNCH_CMD+=(--config_file "${ACCEL_CFG}")
-fi
-
-PY_SCRIPT="/root/autodl-fs/wzq/BiomniGEM/train/sft/train.py"
+########################################
+# 组装启动命令
+########################################
+LAUNCH_CMD=(accelerate launch --num_processes "${NPROC}" --num_machines 1)
+[[ -n "${ACCEL_CFG}" && -f "${ACCEL_CFG}" ]] && LAUNCH_CMD+=(--config_file "${ACCEL_CFG}")
 
 RUN_ARGS=(
   --model_path "${MODEL_PATH}"
@@ -121,25 +150,41 @@ RUN_ARGS=(
   --eval_steps "${EVAL_STEPS}"
   --keep_best_k "${KEEP_BEST_K}"
   --keep_recent_n "${KEEP_RECENT_N}"
+  # 与训练脚本对齐的稳健参数
+  --ddp_timeout_minutes "${DDP_TIMEOUT_MIN}"
+  --map_num_proc "${MAP_NUM_PROC}"
+  --dl_workers "${DL_WORKERS}"
+  --pin_memory "${PIN_MEMORY}"
+  --disable_tokenizers_parallel "${DISABLE_TOKENIZERS_PARALLEL}"
+  # —— 新增：评估控制参数 —— 
+  --eval_max_samples "${EVAL_MAX_SAMPLES}"
+  --eval_shuffle "${EVAL_SHUFFLE}"
+  --eval_shuffle_seed "${EVAL_SHUFFLE_SEED}"
 )
+[[ -n "${VAL_JSONL}" ]] && RUN_ARGS+=(--val_jsonl "${VAL_JSONL}")
+[[ "${DEBUG_MARKS}" == "true" ]] && RUN_ARGS+=(--debug_marks)
 
-if [[ -n "${VAL_JSONL}" ]]; then
-  RUN_ARGS+=(--val_jsonl "${VAL_JSONL}")
-fi
+########################################
+# 打印信息并执行
+########################################
+echo "================= LLM SFT 训练任务启动 =================" | tee -a "${LOG_FILE}"
+echo "MODEL_PATH          : ${MODEL_PATH}"                      | tee -a "${LOG_FILE}"
+echo "TRAIN_JSONL         : ${TRAIN_JSONL}"                     | tee -a "${LOG_FILE}"
+echo "VAL_JSONL           : ${VAL_JSONL:-<none>}"               | tee -a "${LOG_FILE}"
+echo "OUT_DIR             : ${OUT_DIR}"                         | tee -a "${LOG_FILE}"
+echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES:-<inherit>}" | tee -a "${LOG_FILE}"
+echo "NPROC               : ${NPROC}"                           | tee -a "${LOG_FILE}"
+echo "ACCEL_CFG           : ${ACCEL_CFG:-<default>}"            | tee -a "${LOG_FILE}"
+echo "EVAL_MAX_SAMPLES    : ${EVAL_MAX_SAMPLES}"                | tee -a "${LOG_FILE}"
+echo "EVAL_SHUFFLE        : ${EVAL_SHUFFLE}"                    | tee -a "${LOG_FILE}"
+echo "EVAL_SHUFFLE_SEED   : ${EVAL_SHUFFLE_SEED}"               | tee -a "${LOG_FILE}"
+echo "--------------------------------------------------------" | tee -a "${LOG_FILE}"
+echo "${LAUNCH_CMD[@]} ${PY_SCRIPT} \\"                         | tee -a "${LOG_FILE}"
+for a in "${RUN_ARGS[@]}"; do printf "  %q " "$a"; done | tee -a "${LOG_FILE}"; echo | tee -a "${LOG_FILE}"
+echo "========================================================" | tee -a "${LOG_FILE}"
 
-############################
-# 打印任务信息并执行
-############################
-echo "================= LLM SFT 训练任务启动 ================="
-echo "MODEL_PATH          : ${MODEL_PATH}"
-echo "TRAIN_JSONL         : ${TRAIN_JSONL}"
-echo "VAL_JSONL           : ${VAL_JSONL:-<none>}"
-echo "OUT_DIR             : ${OUT_DIR}"
-echo "CUDA_VISIBLE_DEVICES: ${CUDA_VISIBLE_DEVICES:-<inherit>}"
-echo "--------------------------------------------------------"
-echo "${LAUNCH_CMD[@]} ${PY_SCRIPT} \\"
-for a in "${RUN_ARGS[@]}"; do printf "  %q " "$a"; done; echo
-echo "========================================================"
+# 将本次会话stdout/err同时写入日志
+exec > >(tee -a "${LOG_FILE}") 2>&1
 
 if [[ -n "${CUDA_VISIBLE_DEVICES}" ]]; then
   CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES}" "${LAUNCH_CMD[@]}" "${PY_SCRIPT}" "${RUN_ARGS[@]}"

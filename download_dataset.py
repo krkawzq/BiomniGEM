@@ -17,7 +17,7 @@ def setup_logger(log_path: str):
     return logger
 
 def main():
-    parser = argparse.ArgumentParser(description="下载并本地保存 HuggingFace 数据集")
+    parser = argparse.ArgumentParser(description="下载并本地保存 HuggingFace 数据集（JSON 格式）")
     parser.add_argument("--dataset_id", type=str, default="krkawzq/SynBioCoT")
     parser.add_argument("--dest_dir", type=str, required=True)
     parser.add_argument("--log_file", type=str, default="download_dataset.log")
@@ -29,16 +29,16 @@ def main():
     logger.info(f"开始下载数据集 {args.dataset_id}")
     dsdict = load_dataset(args.dataset_id)  # 包含 train / validation
 
-    # 直接保存为 Arrow 数据集目录（最快，后续 load_from_disk 即可）
-    save_root = os.path.join(args.dest_dir, "arrow")
+    # 保存为 JSON 文件
+    save_root = os.path.join(args.dest_dir, "json")
     os.makedirs(save_root, exist_ok=True)
     for split in dsdict:
-        out_dir = os.path.join(save_root, split)
-        logger.info(f"保存 split={split} 到 {out_dir}")
-        dsdict[split].save_to_disk(out_dir)
+        out_path = os.path.join(save_root, f"{split}.json")
+        logger.info(f"保存 split={split} 到 {out_path}（JSON 格式）")
+        dsdict[split].to_json(out_path, force_ascii=False, orient="records", lines=True)
 
-    logger.info("✅ 全部分割已保存（Arrow 格式）。")
-    logger.info(f"下次可用 datasets.load_from_disk('{save_root}/train') 直接读取。")
+    logger.info("✅ 全部分割已保存（JSON 格式）。")
+    logger.info(f"下次可直接用 pandas.read_json('{save_root}/train.json', lines=True) 读取。")
 
 if __name__ == "__main__":
     main()
